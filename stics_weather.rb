@@ -1,5 +1,6 @@
 require 'java'
-require 'lib/agmip-core-1.0-SNAPSHOT.jar'
+Dir['lib/*.jar'].each { |j| require j}
+require 'date'
 
 module AgMIP
   module Translators
@@ -7,48 +8,50 @@ module AgMIP
       include_package "org.agmip.core.types"
       include org.agmip.core.types.WeatherFile
       attr_accessor :data
-      @location = nil
+      attr_accessor :location
       @@default_value = -999.9
-      
+      @@co2_level = 330.0 #temporary hardcode 20/02/2012 - CV
+
       def initialize
         @data = Array.new
+        @location = nil
+      end
+
+      def clear
+        @data.clear
+        @location = nil
       end
 
       def readFile(file)
-        puts "Reading file " + file
-        #We can check the first line to make sure it matches our translator
-        fh = File.open(file)
-        line = fh.readline
-        loc = ''
-        if( check(line) )
-          loc = line.split(' ')[0]
-          @location = WeatherLocation.new(PointLocation.new(loc, Point.new(@@default_value, @@default_value), @@default_value))
-          fh.rewind
-          # process the files here
-          fh.each{ |line|
-            line_data = line.split(' ')
-            line_data.each_with_index{ |v, k| line_data[k] = (v == @@default_value.to_s) ? nil : v.to_f }
-            weather_data = WeatherDataLine.new(java.util.HashMap.new({}))
-            weather_data.set_temp_min(line_data[5])
-            weather_data.set_temp_max(line_data[6])
-            weather_data.set_solar_radiation(line_data[7])
-            weather_data.set_rain(line_data[9])
-            @data.push(weather_data)
-          }
-        end
-        fh.close
+        puts "Reading file " + file + "[STICS]"
+        puts "NOT YET IMPLEMENTED!!!"
       end
 
       def writeFile(file)
         puts "Writing file " + file + "[STICS]"
-        @data.each { |dl|
-          puts(':::'+dl.get_temp_max.to_s)
+        loc_info = @location.get_location
+        loc_id   = (((@location.get_extra_data["location_detail"] == nil) ? loc_info.get_location_id : @location.get_extra_data["location_detail"].delete(" ").partition(",")[0]).downcase)[0,7]
+        fh = File.open(file, 'w')
+        @data.each { |v|
+          d = v.getRawData
+          date = d["date"]
+          formatted_date = date.strftime("%Y/%m/%d")
+          fh.printf("%7s %4d %2d %2d %3d %6.1f %6.1f %6.1f %6.1f %6.1f %6.1f %6.1f %6.1f\r\n",
+                    loc_id,
+                    date.year,
+                    date.month,
+                    date.mday,
+                    date.yday,
+                    d["tmin"],
+                    d["tmax"],
+                    d["srad"],
+                    @@default_value,#ETP
+                    d["rain"],
+                    d["wind"],
+                    d["vprs"],
+                    @@co2_level)
         }
-      end
-
-      def check(line)
-        re = /\S*\s+\d{4}\s+\d{1,2}\s+\d{1,2}\s+\d{1,3}\s+[0-9\-.]+\s+[0-9\-.]+\s+[0-9\-.]+\s+[0-9\-.]+\s+[0-9\-.]+\s+[0-9\-.]+\s+[0-9\-.]+\s+[0-9\-.]+/
-        return !!(re =~ line)
+        fh.close
       end
     end
   end

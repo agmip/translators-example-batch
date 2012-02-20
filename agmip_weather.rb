@@ -1,5 +1,5 @@
 require 'java'
-require 'lib/agmip-core-1.0-SNAPSHOT.jar'
+Dir['lib/*.jar'].each { |j| require j}
 require 'date'
 
 module AgMIP
@@ -17,7 +17,7 @@ module AgMIP
       end
 
       def readFile(file)
-        puts "Reading file " + file
+        puts "Reading file " + file + ' [AgMIP]'
         fh = File.open(file)
         extra_data = fh.readline.split(':')[1].strip
         2.times {fh.readline}

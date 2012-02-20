@@ -1,5 +1,5 @@
 require 'java'
-require 'lib/agmip-core-1.0-SNAPSHOT.jar'
+Dir['lib/*.jar'].each { |j| require j}
 require 'date'
 
 module AgMIP
