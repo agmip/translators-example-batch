@@ -13,13 +13,13 @@ module AgMIP
       @@co2_level = 330.0 #temporary hardcode 20/02/2012 - CV
 
       def initialize
-        @data = Array.new
-        @location = nil
+        data = Array.new
+        location = nil
       end
 
       def clear
-        @data.clear
-        @location = nil
+        data.clear
+        location = nil
       end
 
       def readFile(file)
@@ -27,12 +27,13 @@ module AgMIP
         puts "NOT YET IMPLEMENTED!!!"
       end
 
-      def writeFile(file)
+      def writeFile(file, location, data)
+        file = file+'.txt'
         puts "Writing file " + file + "[STICS]"
-        loc_info = @location.get_location
-        loc_id   = (((@location.get_extra_data["location_detail"] == nil) ? loc_info.get_location_id : @location.get_extra_data["location_detail"].delete(" ").partition(",")[0]).downcase)[0,7]
+        loc_info = location.get_location
+        loc_id   = (((location.get_extra_data["location_detail"] == nil) ? loc_info.get_location_id : location.get_extra_data["location_detail"].delete(" ").partition(",")[0]).downcase)[0,7]
         fh = File.open(file, 'w')
-        @data.each { |v|
+        data.each { |v|
           d = v.getRawData
           date = d["date"]
           formatted_date = date.strftime("%Y/%m/%d")

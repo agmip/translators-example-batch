@@ -12,13 +12,13 @@ module AgMIP
       @@default_value = -99.99
 
       def initialize
-        @data = Array.new
-        @location = nil
+        data = Array.new
+        location = nil
       end
 
       def clear
-        @data.clear
-        @location = nil
+        data.clear
+        location = nil
       end
 
       def readFile(file)
@@ -26,12 +26,13 @@ module AgMIP
         puts "NOT YET IMPLEMENTED!!!"
       end
 
-      def writeFile(file)
+      def writeFile(file, location, data)
+        file = (file.downcase)+'.met'
         puts "Writing file " + file + "[APSIM]"
-        loc_info = @location.get_location.get_location
+        loc_info = location.get_location.get_location
         fh = File.open(file, 'w')
-        if (title = @location.get_extra_data["location_detail"])
-          fh.puts "!title: "+@location.get_extra_data["location_detail"]+"\r\n"
+        if (title = location.get_extra_data["location_detail"])
+          fh.puts "!title: "+location.get_extra_data["location_detail"]+"\r\n"
         end
         fh.print "!NOTE: This is minimal data until a list of met variables\r\n"
         fh.print "!      is obtained (cvillalobos@ufl.edu)\r\n"
@@ -39,13 +40,13 @@ module AgMIP
         fh.print "[weather.met.weather]\r\n"
         fh.printf("latitude = %.2f (DECIMAL DEGREES)\r\n", loc_info.get_lat)
         fh.printf("longitude = %.2f (DECIMAL DEGREES)\r\n", loc_info.get_lon)
-        fh.printf("tav = %.2f (oC)\r\n", @location.get_temp_average)
-        fh.printf("amp = %.2f (oC)\r\n\r\n", @location.get_temp_amplitude)
+        fh.printf("tav = %.2f (oC)\r\n", location.get_temp_average)
+        fh.printf("amp = %.2f (oC)\r\n\r\n", location.get_temp_amplitude)
         fh.print "year  day  radn    maxt  mint  rain  wind  dewp  vers  rh\r\n"
         fh.print "()    ()   (MJ/m2) (oC)  (oC)  (mm)  (km)  (oC)   ()   (%)"
                  #         111111111122222222223333333333444444444455555555556
                  #123456789012345678901234567890123456789012345678901234567890
-        @data.each { |v|
+        data.each { |v|
           d = v.getRawData
           fh.printf("\r\n%4d  %-3d  %-6.1f  %-5.1f %-5.1f %-5.1f %-5.1f %-5.1f %-5.1f %-3d",
                     d["date"].year,

@@ -1,21 +1,21 @@
+##
+# This script is a simple chaining of converting files from .AgMIP to
+# other file formats
 require 'agmip_weather'
 require 'dssat_weather'
 require 'apsim_weather'
+require 'stics_weather'
 
 files  = Dir.glob("input/*.AgMIP")
 apsim = AgMIP::Translators::ApsimWeather.new
 dssat = AgMIP::Translators::DssatWeather.new
-
+stics = AgMIP::Translators::SticsWeather.new
+models = [apsim, dssat, stics]
 files.each { |file|
   output = './output/'+File.basename(file, ".AgMIP")
   source = AgMIP::Translators::AgmipWeather.new
   source.readFile(file)
-  apsim.data = source.data
-  apsim.location = source.location
-  apsim.writeFile(output.downcase+".met")
-  dssat.data = source.data
-  dssat.location = source.location
-  dssat.writeFile(output+".WTH")
-  dssat.clear
-  apsim.clear
+  models.each { |m|
+    m.writeFile(output, source.location, source.data)
+  }
 }

@@ -12,13 +12,13 @@ module AgMIP
       @@default_value = -99.99
 
       def initialize
-        @data = Array.new
-        @location = nil
+        data = Array.new
+        location = nil
       end
 
       def clear
-        @data.clear
-        @location = nil
+        data.clear
+        location = nil
       end
 
       def readFile(file)
@@ -26,23 +26,24 @@ module AgMIP
         puts "NOT YET IMPLEMENTED!!!"
       end
 
-      def writeFile(file)
+      def writeFile(file, location, data)
+        file = file+".WTH"
         puts "Writing file " + file + "[DSSAT]"
-        loc_info = @location.get_location
+        loc_info = location.get_location
         fh = File.open(file, 'w')
-        fh.print "*WEATHER DATA :"+((@location.get_extra_data["location_detail"] == nil) ? "" : (" "+@location.get_extra_data["location_detail"]))+"\r\n"
+        fh.print "*WEATHER DATA :"+((location.get_extra_data["location_detail"] == nil) ? "" : (" "+location.get_extra_data["location_detail"]))+"\r\n"
         fh.print "\r\n@ INSI      LAT     LONG  ELEV   TAV   AMP REFHT WNDHT\r\n"
         fh.printf("%6s %8.3f %8.3f %5d %5.1f %5.1f %5.1f %5.1f\r\n",
                        loc_info.get_location_id,
                        loc_info.get_location.get_lat,
                        loc_info.get_location.get_lon,
                        loc_info.get_elevation,
-                       @location.get_temp_average_or(@@default_value),
-                       @location.get_temp_amplitude_or(@@default_value),
-                       @location.get_reference_height_or(@@default_value),
-                       @location.get_wind_height_or(@@default_value))
+                       location.get_temp_average_or(@@default_value),
+                       location.get_temp_amplitude_or(@@default_value),
+                       location.get_reference_height_or(@@default_value),
+                       location.get_wind_height_or(@@default_value))
         fh.print "@DATE  SRAD  TMAX  TMIN  RAIN  DEWP  WIND  VPRS  RHUM"
-        @data.each { |v|
+        data.each { |v|
           d = v.getRawData
           date = d["date"]
           formatted_date = format("%2s%03d", date.year.to_s[-2,2], date.yday.to_s)
