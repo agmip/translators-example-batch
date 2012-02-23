@@ -54,7 +54,7 @@ module AgMIP
                     d["tmin"],
                     d["rain"],
                     d["dewp"],
-                    d["wind"],
+                    (d["wind"]*86400)/1000, #conversion from m/s -> km/day
                     d["vprs"],
                     d["rhum"])
         }

@@ -1,2 +1,6 @@
 .DS_Store
 *.swp
+input/*.AgMIP
+output/*.WTH
+output/*.txt
+output/*.met

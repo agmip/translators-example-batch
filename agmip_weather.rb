@@ -1,6 +1,7 @@
 require 'java'
 Dir['lib/*.jar'].each { |j| require j}
 require 'date'
+java_require 'agmip_weather'
 
 module AgMIP
   module Translators
